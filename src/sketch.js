@@ -6,8 +6,10 @@ function setup() {
   maze.setEntry();
   maze.setExit();
 
-  maze.cells[3][3].updateWalls('right', 'left', 'up', 'down');
-  maze.prepare();
+  //maze.dig(maze.cells[3][3]);
+  maze.createPath();
+  
+  //maze.prepare();
 }
 
 function draw() {

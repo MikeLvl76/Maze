@@ -29,6 +29,14 @@ class Cell {
     this.h = h;
   }
 
+  getOpposite(key) {
+    if (key === 'left') return 'right';
+    if (key === 'right') return 'left';
+    if (key === 'up') return 'down';
+    if (key === 'down') return 'up';
+    return null;
+  }
+
   draw() {
     stroke(255);
     strokeWeight(1);
