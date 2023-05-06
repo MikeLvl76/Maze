@@ -1,15 +1,20 @@
 class Cell {
-  constructor(left, right, up, down) {
+  constructor() {
     this.x = 0;
     this.y = 0;
     this.w = 0;
     this.h = 0;
+    this.value = 0;
     this.walls = {
-      left: left,
-      right: right,
-      up: up,
-      down: down,
+      left: true,
+      right: true,
+      up: true,
+      down: true,
     };
+  }
+
+  updateWalls(key) {
+    this.walls[key] = !this.walls[key];
   }
 
   setPosition(x, y) {
@@ -40,6 +45,12 @@ class Cell {
 
     if (this.walls.down) {
         line(this.x, this.y + this.h, this.x + this.w, this.y + this.h);
+    }
+
+    if (this.value !== 0) {
+        const color = this.value === 1 ? [0, 255, 0] : [255, 0, 0];
+        fill(...color);
+        rect(this.x, this.y, this.w, this.h);
     }
   }
 }
