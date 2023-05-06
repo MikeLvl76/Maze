@@ -34,24 +34,68 @@ class Maze {
   }
 
   getNeighbors(row, col) {
-    const neighbors = [];
-    for (let i = row - 1; i <= row + 1; i++) {
-      for (let j = col - 1; j <= col + 1; j++) {
-        if (
-          i >= 0 &&
-          i < this.cells.length &&
-          j >= 0 &&
-          j < this.cells.length &&
-          (i !== row || j !== col)
-        ) {
-          neighbors.push(this.cells[i][j]);
-        }
+    const neighbors = {
+      left: [],
+      right: [],
+      up: [],
+      down: [],
+    };
+
+    if (row - 1 >= 0) {
+      neighbors.left.push(row - 1, col);
+    }
+
+    if (row + 1 < this.cells.length) {
+      neighbors.right.push(row + 1, col);
+    }
+
+    if (col - 1 >= 0) {
+      neighbors.up.push(row, col - 1);
+    }
+
+    if (col + 1 < this.cells.length) {
+      neighbors.down.push(row, col + 1);
+    }
+
+    return neighbors;
+  }
+
+  updateNeighbor(cell, neighbors, wall, neighbor_wall) {
+    if (!cell.walls[wall]) {
+      if (neighbors[wall].length > 0) {
+        const [x, y] = neighbors[wall];
+        this.cells[x][y].walls[neighbor_wall] = false;
       }
     }
-    return neighbors;
+  }
+
+  prepare() {
+    this.cells.forEach((row, i) =>
+      row.forEach((cell, j) => {
+        const neighbors = this.getNeighbors(i, j);
+        this.updateNeighbor(cell, neighbors, "left", "right");
+        this.updateNeighbor(cell, neighbors, "right", "left");
+        this.updateNeighbor(cell, neighbors, "up", "down");
+        this.updateNeighbor(cell, neighbors, "down", "up");
+      })
+    );
   }
 
   draw() {
     this.cells.forEach((row) => row.forEach((cell) => cell.draw()));
+
+    // Debug
+    const neighbors = this.getNeighbors(3, 3);
+    Object.values(neighbors)
+      .filter((value) => value.length > 0)
+      .forEach((coord) => {
+        const [i, j] = coord;
+        const cell = this.cells[i][j];
+        text(
+          (cell.value + i).toString(),
+          cell.x + cell.w / 2,
+          cell.y + cell.h / 2
+        );
+      });
   }
 }
