@@ -10,6 +10,8 @@ class Maze {
           return _cell;
         });
       });
+
+    this.path = [];
   }
 
   getIndices(cell) {
@@ -59,8 +61,8 @@ class Maze {
   }
 
   dig(cell, iteration = 5, unlimited = false, cb = false) {
-    if (iteration === 0 && !unlimited) return;
-
+    if (iteration === 0 && !unlimited) return cell;
+    
     // Get cell's neighbors
     const [i, j] = this.getIndices(cell);
     const neighbors = this.getNeighbors(i, j);
@@ -77,29 +79,21 @@ class Maze {
 
     // Update neighbor's wall
     const neighbor = this.updateNeighbor(cell, neighbors, wall, opposite);
-    if (cb(neighbor) || !neighbor) return;
+    if (cb(neighbor)) return neighbor;
 
-    return this.dig(neighbor, unlimited ? iteration : iteration - 1, unlimited, cb);
+    if (!this.path.includes(neighbor)) {
+      this.path.push(neighbor);
+    }
+    
+    return this.dig(this.path[this.path.length - 1], unlimited ? iteration : iteration - 1, unlimited, cb);
   }
 
   createPath() {
     const entry = this.getEntry();
     const exit = this.getExit();
 
-    this.dig(entry, 0, true, (neighbor) => neighbor === exit);
+    console.log(this.dig(entry, 0, true, (neighbor) => neighbor === exit))
   }
-
-  //   removeWallsRandomly() {
-  //     let count = 40;
-
-  //     while (count > 0) {
-  //       let i = Math.floor(Math.random() * this.cells.length);
-  //       let j = Math.floor(Math.random() * this.cells.length);
-
-  //       this.cells[i][j].updateWalls('left', 'up', 'right', 'bottom');
-  //       count--;
-  //     }
-  //   }
 
   getNeighbors(row, col) {
     const neighbors = {
@@ -136,38 +130,29 @@ class Maze {
         return this.cells[x][y];
       }
     }
-    return null;
+    return cell;
   }
 
-  prepare() {
-    //this.removeWallsRandomly();
-
-    this.cells.forEach((row, i) =>
-      row.forEach((cell, j) => {
-        const neighbors = this.getNeighbors(i, j);
-        this.updateNeighbor(cell, neighbors, "left", "right");
-        this.updateNeighbor(cell, neighbors, "right", "left");
-        this.updateNeighbor(cell, neighbors, "up", "down");
-        this.updateNeighbor(cell, neighbors, "down", "up");
-      })
-    );
-  }
+  // prepare() {
+  //   this.cells.forEach((row, i) =>
+  //     row.forEach((cell, j) => {
+  //       const neighbors = this.getNeighbors(i, j);
+  //       this.updateNeighbor(cell, neighbors, "left", "right");
+  //       this.updateNeighbor(cell, neighbors, "right", "left");
+  //       this.updateNeighbor(cell, neighbors, "up", "down");
+  //       this.updateNeighbor(cell, neighbors, "down", "up");
+  //     })
+  //   );
+  // }
 
   draw() {
     this.cells.forEach((row) => row.forEach((cell) => cell.draw()));
-
-    // Debug
-    // const neighbors = this.getNeighbors(3, 3);
-    // Object.values(neighbors)
-    //   .filter((value) => value.length > 0)
-    //   .forEach((coord) => {
-    //     const [i, j] = coord;
-    //     const cell = this.cells[i][j];
-    //     text(
-    //       (cell.value + i).toString(),
-    //       cell.x + cell.w / 2,
-    //       cell.y + cell.h / 2
-    //     );
-    //   });
+    stroke(255, 127, 127);
+    strokeWeight(2)
+    for (let i = 1; i < this.path.length; i++) {
+      const current = this.path[i];
+      const previous = this.path[i - 1];
+      line(previous.x + previous.w / 2, previous.y + previous.h / 2, current.x + current.w / 2, current.y + current.h / 2)
+    }
   }
 }

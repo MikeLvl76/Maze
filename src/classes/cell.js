@@ -60,6 +60,7 @@ class Cell {
     if (this.value !== 0) {
       const color = this.value === 1 ? [0, 255, 0] : [255, 0, 0];
       fill(...color);
+      noStroke();
       rect(this.x, this.y, this.w, this.h);
     }
   }
