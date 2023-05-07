@@ -1,5 +1,7 @@
 # About
 
+***WARNING*** : ***Still in development***
+
 Just a Maze made with JS and p5 library. It only uses HTML and JS as languages. Some CSS is applied too.
 
 # Get started
