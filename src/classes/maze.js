@@ -63,9 +63,6 @@ class Maze {
   dig(cell, iteration = 100) {
     if (iteration === 0) return cell;
 
-    // Get cell's indices
-    const [i, j] = this.getIndices(cell);
-
     // Get cell walls
     const walls = Object.keys(cell.walls);
 
@@ -76,13 +73,32 @@ class Maze {
     cell.walls[wall] = false;
     const opposite = cell.getOpposite(wall);
 
+    // Get cell's indices
+    const [row, col] = this.getIndices(cell);
+
     // Update neighbor's wall
-    const neighbors = this.getNeighbors(i, j);
+    const neighbors = this.getNeighbors(row, col);
     const neighbor = this.updateNeighbor(cell, neighbors, wall, opposite);
     if (neighbor === this.getExit()) return neighbor;
 
     if (!this.path.includes(neighbor) && neighbor !== this.getEntry()) {
       this.path.push(neighbor);
+    }
+
+    const neighborKeys = Object.keys(neighbors).filter((key) => {
+      return neighbors[key].length > 0;
+    });
+
+    const neighborhoodFull = neighborKeys.every((key) => {
+      const [x, y] = neighbors[key];
+      return this.path.includes(cell) && this.path.includes(this.cells[x][y]);
+    });
+
+    // If path is blocked
+    if (neighborhoodFull) {
+      this.path.splice(1, this.path.length - 1);
+      //console.log(this.path.slice(1, this.path.length), cell, neighbors);
+      return this.dig(this.path[this.path.length - 1], iteration - 1);
     }
 
     return this.dig(this.path[this.path.length - 1], iteration - 1);
@@ -93,7 +109,7 @@ class Maze {
     const exit = this.getExit();
 
     this.path.push(entry);
-    this.dig(entry, 10000);
+    this.dig(entry, 100000);
     this.path.push(exit);
   }
 
@@ -137,6 +153,8 @@ class Maze {
 
   draw() {
     this.cells.forEach((row) => row.forEach((cell) => cell.draw()));
+
+    // Draw path with lines
     stroke(255, 127, 127);
     strokeWeight(2);
     for (let i = 1; i < this.path.length; i++) {
