@@ -60,9 +60,9 @@ class Maze {
       .find((cell) => cell.value === 2);
   }
 
-  dig(cell, iteration = 5, unlimited = false, cb = false) {
-    if (iteration === 0 && !unlimited) return cell;
-    
+  dig(cell, iteration = 100, cb = false) {
+    if (iteration === 0 || iteration > 3000) return cell;
+
     // Get cell's neighbors
     const [i, j] = this.getIndices(cell);
     const neighbors = this.getNeighbors(i, j);
@@ -81,18 +81,20 @@ class Maze {
     const neighbor = this.updateNeighbor(cell, neighbors, wall, opposite);
     if (cb(neighbor)) return neighbor;
 
-    if (!this.path.includes(neighbor)) {
+    if (!this.path.includes(neighbor) && neighbor !== this.getEntry()) {
       this.path.push(neighbor);
     }
-    
-    return this.dig(this.path[this.path.length - 1], unlimited ? iteration : iteration - 1, unlimited, cb);
+
+    return this.dig(this.path[this.path.length - 1], iteration - 1, cb);
   }
 
   createPath() {
     const entry = this.getEntry();
     const exit = this.getExit();
 
-    console.log(this.dig(entry, 0, true, (neighbor) => neighbor === exit))
+    this.path.push(entry);
+    this.dig(entry, 3000, (neighbor) => neighbor === exit);
+    this.path.push(exit);
   }
 
   getNeighbors(row, col) {
@@ -148,11 +150,16 @@ class Maze {
   draw() {
     this.cells.forEach((row) => row.forEach((cell) => cell.draw()));
     stroke(255, 127, 127);
-    strokeWeight(2)
+    strokeWeight(2);
     for (let i = 1; i < this.path.length; i++) {
       const current = this.path[i];
       const previous = this.path[i - 1];
-      line(previous.x + previous.w / 2, previous.y + previous.h / 2, current.x + current.w / 2, current.y + current.h / 2)
+      line(
+        previous.x + previous.w / 2,
+        previous.y + previous.h / 2,
+        current.x + current.w / 2,
+        current.y + current.h / 2
+      );
     }
   }
 }
