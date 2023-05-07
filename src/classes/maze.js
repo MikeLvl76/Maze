@@ -63,9 +63,8 @@ class Maze {
   dig(cell, iteration = 100) {
     if (iteration === 0) return cell;
 
-    // Get cell's neighbors
+    // Get cell's indices
     const [i, j] = this.getIndices(cell);
-    const neighbors = this.getNeighbors(i, j);
 
     // Get cell walls
     const walls = Object.keys(cell.walls);
@@ -78,6 +77,7 @@ class Maze {
     const opposite = cell.getOpposite(wall);
 
     // Update neighbor's wall
+    const neighbors = this.getNeighbors(i, j);
     const neighbor = this.updateNeighbor(cell, neighbors, wall, opposite);
     if (neighbor === this.getExit()) return neighbor;
 
