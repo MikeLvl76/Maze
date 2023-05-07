@@ -5,6 +5,7 @@ class Cell {
     this.w = 0;
     this.h = 0;
     this.value = 0;
+    this.indices = [];
     this.walls = {
       left: true,
       right: true,
@@ -13,11 +14,11 @@ class Cell {
     };
   }
 
-  updateWalls(...keys) {
-    keys.forEach((key) => {
-      this.walls[key] = !this.walls[key];
-    });
-  }
+  // updateWalls(...keys) {
+  //   keys.forEach((key) => {
+  //     this.walls[key] = !this.walls[key];
+  //   });
+  // }
 
   setPosition(x, y) {
     this.x = x;
@@ -27,6 +28,10 @@ class Cell {
   setDimension(w, h) {
     this.w = w;
     this.h = h;
+  }
+
+  setIndices(i, j) {
+    this.indices.push(i, j);
   }
 
   getOpposite(key) {
@@ -61,7 +66,7 @@ class Cell {
       const color = this.value === 1 ? [0, 255, 0] : [255, 0, 0];
       fill(...color);
       noStroke();
-      rect(this.x, this.y, this.w, this.h);
+      ellipse(this.x + this.w / 2, this.y + this.h / 2, 20);
     }
   }
 }

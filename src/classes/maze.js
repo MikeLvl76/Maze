@@ -7,24 +7,12 @@ class Maze {
           const _cell = new Cell();
           _cell.setDimension(width / 10, height / 10);
           _cell.setPosition((width / 10) * i, (height / 10) * j);
+          _cell.setIndices(i, j);
           return _cell;
         });
       });
 
     this.path = [];
-  }
-
-  getIndices(cell) {
-    const indices = [];
-    this.cells.forEach((row, i) => {
-      row.forEach((elt, j) => {
-        if (elt === cell) {
-          indices.push(i, j);
-          return;
-        }
-      });
-    });
-    return indices;
   }
 
   setEntry() {
@@ -60,8 +48,19 @@ class Maze {
       .find((cell) => cell.value === 2);
   }
 
-  dig(cell, iteration = 100) {
+  build(cell, iteration = 100) {
+
+    const entry = this.getEntry();
+    const exit = this.getExit();
+
     if (iteration === 0) return cell;
+
+    // If current cell is undefined the path is reset
+    if (!cell) {
+      this.path.slice(0, this.path.length);
+      this.path.push(entry);
+      return this.build(entry, iteration - 1);
+    }
 
     // Get cell walls
     const walls = Object.keys(cell.walls);
@@ -70,46 +69,38 @@ class Maze {
     const wall = walls[Math.floor(Math.random() * walls.length)];
 
     // Unset this wall
-    cell.walls[wall] = false;
-    const opposite = cell.getOpposite(wall);
-
-    // Get cell's indices
-    const [row, col] = this.getIndices(cell);
+    if (cell.walls[wall]) {
+      cell.walls[wall] = false;
+    }
 
     // Update neighbor's wall
-    const neighbors = this.getNeighbors(row, col);
-    const neighbor = this.updateNeighbor(cell, neighbors, wall, opposite);
-    if (neighbor === this.getExit()) return neighbor;
+    const neighbors = this.getNeighbors(...cell.indices);
+    const neighbor = this.updateNeighbor(cell, neighbors, wall);
 
-    if (!this.path.includes(neighbor) && neighbor !== this.getEntry()) {
+    // If neighbor is the exit
+    if (neighbor === exit) return neighbor;
+
+    // If path doesn't include neighbor and neighbor is not the entry then
+    // the neighbor is added to the path
+    if (!this.path.includes(neighbor) && neighbor !== entry) {
       this.path.push(neighbor);
     }
 
-    const neighborKeys = Object.keys(neighbors).filter((key) => {
-      return neighbors[key].length > 0;
-    });
-
-    const neighborhoodFull = neighborKeys.every((key) => {
-      const [x, y] = neighbors[key];
-      return this.path.includes(cell) && this.path.includes(this.cells[x][y]);
-    });
-
-    // If path is blocked
-    if (neighborhoodFull) {
-      this.path.splice(1, this.path.length - 1);
-      //console.log(this.path.slice(1, this.path.length), cell, neighbors);
-      return this.dig(this.path[this.path.length - 1], iteration - 1);
+    if (neighbor === cell) {
+      this.path.pop();
     }
 
-    return this.dig(this.path[this.path.length - 1], iteration - 1);
+    return this.build(this.path[this.path.length - 1], iteration - 1);
   }
 
   createPath() {
     const entry = this.getEntry();
+    console.log('Entry:', entry)
     const exit = this.getExit();
 
     this.path.push(entry);
-    this.dig(entry, 100000);
+    console.log('Before building:', this.path)
+    this.build(entry, 1000000);
     this.path.push(exit);
   }
 
@@ -140,10 +131,11 @@ class Maze {
     return neighbors;
   }
 
-  updateNeighbor(cell, neighbors, wall, neighbor_wall) {
+  updateNeighbor(cell, neighbors, wall) {
     if (!cell.walls[wall]) {
       if (neighbors[wall].length > 0) {
         const [x, y] = neighbors[wall];
+        const neighbor_wall = cell.getOpposite(wall);
         this.cells[x][y].walls[neighbor_wall] = false;
         return this.cells[x][y];
       }
@@ -152,8 +144,6 @@ class Maze {
   }
 
   draw() {
-    this.cells.forEach((row) => row.forEach((cell) => cell.draw()));
-
     // Draw path with lines
     stroke(255, 127, 127);
     strokeWeight(2);
@@ -167,5 +157,7 @@ class Maze {
         current.y + current.h / 2
       );
     }
+
+    this.cells.forEach((row) => row.forEach((cell) => cell.draw()));
   }
 }
