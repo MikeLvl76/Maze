@@ -48,99 +48,95 @@ class Maze {
       .find((cell) => cell.value === 2);
   }
 
-  build(cell, iteration = 100) {
-
-    const entry = this.getEntry();
-    const exit = this.getExit();
-
-    if (iteration === 0) return cell;
-
-    // If current cell is undefined the path is reset
-    if (!cell) {
-      this.path.slice(0, this.path.length);
-      this.path.push(entry);
-      return this.build(entry, iteration - 1);
-    }
-
-    // Get cell walls
-    const walls = Object.keys(cell.walls);
-
-    // Get randomly one wall
-    const wall = walls[Math.floor(Math.random() * walls.length)];
-
-    // Unset this wall
-    if (cell.walls[wall]) {
-      cell.walls[wall] = false;
-    }
-
-    // Update neighbor's wall
-    const neighbors = this.getNeighbors(...cell.indices);
-    const neighbor = this.updateNeighbor(cell, neighbors, wall);
-
-    // If neighbor is the exit
-    if (neighbor === exit) return neighbor;
-
-    // If path doesn't include neighbor and neighbor is not the entry then
-    // the neighbor is added to the path
-    if (!this.path.includes(neighbor) && neighbor !== entry) {
-      this.path.push(neighbor);
-    }
-
-    if (neighbor === cell) {
-      this.path.pop();
-    }
-
-    return this.build(this.path[this.path.length - 1], iteration - 1);
-  }
-
-  createPath() {
-    const entry = this.getEntry();
-    console.log('Entry:', entry)
-    const exit = this.getExit();
-
-    this.path.push(entry);
-    console.log('Before building:', this.path)
-    this.build(entry, 1000000);
-    this.path.push(exit);
-  }
-
   getNeighbors(row, col) {
     const neighbors = {
-      left: [],
-      right: [],
-      up: [],
-      down: [],
+      left: null,
+      right: null,
+      up: null,
+      down: null,
     };
 
     if (row - 1 >= 0) {
-      neighbors.left.push(row - 1, col);
+      neighbors.left = this.cells[row - 1][col];
     }
 
     if (row + 1 < this.cells.length) {
-      neighbors.right.push(row + 1, col);
+      neighbors.right = this.cells[row + 1][col];
     }
 
     if (col - 1 >= 0) {
-      neighbors.up.push(row, col - 1);
+      neighbors.up = this.cells[row][col - 1];
     }
 
     if (col + 1 < this.cells.length) {
-      neighbors.down.push(row, col + 1);
+      neighbors.down = this.cells[row][col + 1];
     }
 
     return neighbors;
   }
 
-  updateNeighbor(cell, neighbors, wall) {
-    if (!cell.walls[wall]) {
-      if (neighbors[wall].length > 0) {
-        const [x, y] = neighbors[wall];
-        const neighbor_wall = cell.getOpposite(wall);
-        this.cells[x][y].walls[neighbor_wall] = false;
-        return this.cells[x][y];
-      }
+  updateNeighborWall(cell, wall, neighbor) {
+    if (!neighbor || cell.walls[wall]) {
+      return;
     }
-    return cell;
+    const opposite = cell.getOpposite(wall);
+    neighbor.walls[opposite] = false;
+  }
+
+  buildPath(current, start, end, tries = 100) {
+    // No tries anymore
+    if (tries === 0) return current;
+
+    current.visited = true;
+
+    // Have starting cell added to the path
+    if (!this.path.includes(start)) {
+      this.path.push(start);
+    }
+
+    // Have current cell added to the path
+    if (!this.path.includes(current)) {
+      this.path.push(current);
+    }
+
+    // End of path
+    if (current === end) {
+      return current;
+    }
+
+    let neighbor = null;
+    let wall = '';
+
+    while (!neighbor) {
+      // Get current cell walls and pick one randomly
+      const walls = Object.keys(current.walls);
+      wall = walls[Math.floor(Math.random() * walls.length)];
+
+      // Unset the wall
+      current.walls[wall] = false;
+
+      // Get current cell's neighbors
+      const neighbors = this.getNeighbors(...current.indices);
+
+      // Get neighbor base on wall
+      neighbor = neighbors[wall];
+    }
+
+    if (neighbor.visited) {
+      return this.buildPath(current, start, end, tries - 1);
+    }
+
+    // Unset neighbor wall
+    this.updateNeighborWall(current, wall, neighbor);
+
+    // Save the neighbor once
+    if (!this.path.includes(neighbor)) {
+      this.path.push(neighbor);
+    }
+
+    // Recursive call but the neighbor becomes the future current cell and
+    // decrease tries number
+    return this.buildPath(neighbor, start, end, tries - 1);
   }
 
   draw() {

@@ -5,6 +5,7 @@ class Cell {
     this.w = 0;
     this.h = 0;
     this.value = 0;
+    this.visited = false;
     this.indices = [];
     this.walls = {
       left: true,

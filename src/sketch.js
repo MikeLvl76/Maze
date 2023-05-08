@@ -6,7 +6,7 @@ function setup() {
   maze = new Maze(10);
   maze.setEntry();
   maze.setExit();
-  maze.createPath();
+  maze.buildPath(maze.getEntry(), maze.getEntry(), maze.getExit(), 100000);
 
 }
 
