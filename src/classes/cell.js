@@ -56,5 +56,15 @@ class Cell {
     if (this.walls.down) {
       line(this.x, this.y + this.h, this.x + this.w, this.y + this.h);
     }
+
+    if (this.value === 1) {
+      noStroke();
+      fill(0, 255, 0);
+      rect(this.x, this.y, this.w, this.h);
+    } else if (this.value === 2) {
+      noStroke();
+      fill(255, 0, 0);
+      rect(this.x, this.y, this.w, this.h);
+    }
   }
 }

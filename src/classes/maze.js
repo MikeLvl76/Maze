@@ -15,10 +15,30 @@ class Maze {
     this.stack = [];
   }
 
+  createEntry() {
+    if (this.cells.length === 0) return;
+    const entry = this.getOneRandomCell();
+    if (entry) {
+      entry.value = 1;
+    }
+  }
+
+  createExit() {
+    if (this.cells.length === 0) return;
+    let exit = this.getOneRandomCell();
+    while (!exit || exit.value === 1) {
+      exit = this.getOneRandomCell();
+    }
+
+    exit.value = 2;
+  }
+
   getOneRandomCell() {
-    return this.cells[Math.floor(Math.random() * this.cells.length)][
-      Math.floor(Math.random() * this.cells.length)
-    ];
+    const row = this.cells[Math.floor(Math.random() * this.cells.length)];
+    if (row) {
+      return row[Math.floor(Math.random() * this.cells.length)];
+    }
+    return null;
   }
 
   getNeighbors(cell, visited = false) {
@@ -51,8 +71,9 @@ class Maze {
       ([_, neighbor]) => neighbor && neighbor.visited === visited
     );
   }
-  
+
   generate() {
+    //     Randomized Depth-First Search
     //     1. Choose the initial cell, mark it as visited and push it to the stack
     //     2. While the stack is not empty
     // 	      1. Pop a cell from the stack and make it a current cell
@@ -63,6 +84,7 @@ class Maze {
     // 		      4. Mark the chosen cell as visited and push it to the stack
 
     const initialCell = this.getOneRandomCell();
+    if (this.cells.length === 0 || !initialCell) return;
     initialCell.visited = true;
 
     this.stack.push(initialCell);
@@ -90,6 +112,8 @@ class Maze {
   }
 
   draw() {
-    this.cells.forEach((row) => row.forEach((cell) => cell.draw()));
+    if (this.cells.length > 0) {
+      this.cells.forEach((row) => row.forEach((cell) => cell.draw()));
+    }
   }
 }
