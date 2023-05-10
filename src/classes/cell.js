@@ -15,12 +15,6 @@ class Cell {
     };
   }
 
-  // updateWalls(...keys) {
-  //   keys.forEach((key) => {
-  //     this.walls[key] = !this.walls[key];
-  //   });
-  // }
-
   setPosition(x, y) {
     this.x = x;
     this.y = y;
@@ -36,16 +30,16 @@ class Cell {
   }
 
   getOpposite(key) {
-    if (key === 'left') return 'right';
-    if (key === 'right') return 'left';
-    if (key === 'up') return 'down';
-    if (key === 'down') return 'up';
+    if (key === "left") return "right";
+    if (key === "right") return "left";
+    if (key === "up") return "down";
+    if (key === "down") return "up";
     return null;
   }
 
   draw() {
     stroke(255);
-    strokeWeight(1);
+    strokeWeight(2);
 
     if (this.walls.left) {
       line(this.x, this.y, this.x, this.y + this.h);
@@ -61,13 +55,6 @@ class Cell {
 
     if (this.walls.down) {
       line(this.x, this.y + this.h, this.x + this.w, this.y + this.h);
-    }
-
-    if (this.value !== 0) {
-      const color = this.value === 1 ? [0, 255, 0] : [255, 0, 0];
-      fill(...color);
-      noStroke();
-      ellipse(this.x + this.w / 2, this.y + this.h / 2, 20);
     }
   }
 }
