@@ -13,10 +13,23 @@ class Maze {
       });
 
     this.stack = [];
+    this.resolverPath = [];
+  }
+
+  isEmpty() {
+    return this.cells.length === 0;
+  }
+
+  resetVisit() {
+    this.cells.forEach((row) =>
+      row.forEach((cell) => {
+        cell.visited = false;
+      })
+    );
   }
 
   createEntry() {
-    if (this.cells.length === 0) return;
+    if (this.isEmpty()) return;
     const entry = this.getOneRandomCell();
     if (entry) {
       entry.value = 1;
@@ -24,7 +37,7 @@ class Maze {
   }
 
   createExit() {
-    if (this.cells.length === 0) return;
+    if (this.isEmpty()) return;
     let exit = this.getOneRandomCell();
     while (!exit || exit.value === 1) {
       exit = this.getOneRandomCell();
@@ -33,7 +46,22 @@ class Maze {
     exit.value = 2;
   }
 
+  getEntry() {
+    if (this.isEmpty()) return null;
+    return this.cells
+      .find((row) => row.some((cell) => cell.value === 1))
+      .find((cell) => cell.value === 1);
+  }
+
+  getExit() {
+    if (this.isEmpty()) return null;
+    return this.cells
+      .find((row) => row.some((cell) => cell.value === 2))
+      .find((cell) => cell.value === 2);
+  }
+
   getOneRandomCell() {
+    if (this.isEmpty()) return null;
     const row = this.cells[Math.floor(Math.random() * this.cells.length)];
     if (row) {
       return row[Math.floor(Math.random() * this.cells.length)];
@@ -42,14 +70,18 @@ class Maze {
   }
 
   getNeighbors(cell, visited = false) {
-    const [row, col] = cell.indices;
-
     const neighbors = {
       left: null,
       right: null,
       up: null,
       down: null,
     };
+
+    if (!cell) {
+      return [];
+    }
+
+    const [row, col] = cell.indices;
 
     if (row - 1 >= 0) {
       neighbors.left = this.cells[row - 1][col];
@@ -84,7 +116,7 @@ class Maze {
     // 		      4. Mark the chosen cell as visited and push it to the stack
 
     const initialCell = this.getOneRandomCell();
-    if (this.cells.length === 0 || !initialCell) return;
+    if (!initialCell) return;
     initialCell.visited = true;
 
     this.stack.push(initialCell);
@@ -109,11 +141,79 @@ class Maze {
         this.stack.push(neighbor);
       }
     }
+
+    this.resetVisit();
+  }
+
+  resolve() {
+    const entry = this.getEntry();
+    const exit = this.getExit();
+
+    if (!entry || !exit) return;
+
+    const frontier = [entry];
+    const visited = new Set([entry]);
+    const parents = {};
+
+    const resolverInterval = setInterval(() => {
+      if (frontier.length > 0) {
+        const currentCell = frontier.shift();
+
+        if (currentCell === exit) {
+          clearInterval(resolverInterval);
+
+          this.resolved = true;
+
+          let current = exit;
+          while (current !== entry) {
+            this.resolverPath.unshift(current);
+            current = parents[current.indices.join("-")];
+          }
+
+          this.resolverPath.unshift(entry);
+          console.log(this.resolverPath.map(cell => cell.indices))
+          return;
+        }
+
+        this.getNeighbors(currentCell).forEach(([_, neighbor]) => {
+          if (!visited.has(neighbor)) {
+            visited.add(neighbor);
+            frontier.push(neighbor);
+            parents[neighbor.indices.join("-")] = currentCell;
+
+            noStroke();
+
+            fill(255, 127, 68);
+            rect(neighbor.x, neighbor.y, neighbor.w, neighbor.h);
+
+            fill(127);
+            rect(currentCell.x, currentCell.y, currentCell.w, currentCell.h);
+          }
+        });
+      } else {
+        clearInterval(resolverInterval);
+      }
+    }, 50);
   }
 
   draw() {
     if (this.cells.length > 0) {
       this.cells.forEach((row) => row.forEach((cell) => cell.draw()));
+    }
+  }
+
+  drawResolution() {
+    stroke(0, 0, 255);
+    noFill();
+    for (let i = 1; i < this.resolverPath.length; i++) {
+      const previous = this.resolverPath[i - 1];
+      const current = this.resolverPath[i];
+      line(
+        previous.x + previous.w / 2,
+        previous.y + previous.h / 2,
+        current.x + current.w / 2,
+        current.y + current.h / 2
+      );
     }
   }
 }
