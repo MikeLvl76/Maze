@@ -1,12 +1,10 @@
 class Cell {
-  constructor() {
-    this.x = 0;
-    this.y = 0;
-    this.w = 0;
-    this.h = 0;
+  constructor(position, dimension, indices) {
+    this.position = position;
+    this.dimension = dimension;
+    this.indices = indices;
     this.value = 0;
     this.visited = false;
-    this.indices = [];
     this.walls = {
       left: true,
       right: true,
@@ -15,56 +13,49 @@ class Cell {
     };
   }
 
-  setPosition(x, y) {
-    this.x = x;
-    this.y = y;
-  }
-
-  setDimension(w, h) {
-    this.w = w;
-    this.h = h;
-  }
-
-  setIndices(i, j) {
-    this.indices.push(i, j);
-  }
-
   getOpposite(key) {
     if (key === "left") return "right";
     if (key === "right") return "left";
     if (key === "up") return "down";
     if (key === "down") return "up";
-    return null;
+    return key;
+  }
+
+  getWalls(_active = true) {
+    return Object.entries(this.walls).filter((_, active) => active === _active);
   }
 
   draw() {
     stroke(255);
     strokeWeight(2);
 
+    const [x, y] = this.position;
+    const [w, h] = this.dimension;
+
     if (this.walls.left) {
-      line(this.x, this.y, this.x, this.y + this.h);
+      line(x, y, x, y + h);
     }
 
     if (this.walls.right) {
-      line(this.x + this.w, this.y, this.x + this.w, this.y + this.h);
+      line(x + w, y, x + w, y + h);
     }
 
     if (this.walls.up) {
-      line(this.x, this.y, this.x + this.w, this.y);
+      line(x, y, x + w, y);
     }
 
     if (this.walls.down) {
-      line(this.x, this.y + this.h, this.x + this.w, this.y + this.h);
+      line(x, y + h, x + w, y + h);
     }
 
     if (this.value === 1) {
       noStroke();
       fill(0, 255, 0);
-      rect(this.x, this.y, this.w, this.h);
+      rect(x, y, w, h);
     } else if (this.value === 2) {
       noStroke();
       fill(255, 0, 0);
-      rect(this.x, this.y, this.w, this.h);
+      rect(x, y, w, h);
     }
   }
 }
