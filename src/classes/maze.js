@@ -14,7 +14,7 @@ class Maze {
       });
 
     this.stack = [];
-    this.userPath = [];
+    this.playerCell = null;
   }
 
   isEmpty() {
@@ -144,6 +144,64 @@ class Maze {
     }
 
     this.resetVisit();
+  }
+
+  initGame(start) {
+    if (!start) return alert("No entry set!");
+    this.playerCell = start;
+  }
+
+  moveInside(end) {
+    if (!end) return;
+
+    function move(maze, dx, dy, direction) {
+      const [i, j] = maze.playerCell.indices;
+      const row = i + dx;
+      const col = j + dy;
+
+      if (
+        row >= 0 &&
+        row < maze.cells.length &&
+        col >= 0 &&
+        col < maze.cells.length
+      ) {
+        const nextCell = maze.cells[row][col];
+
+        const nextCellWall = maze.playerCell.getOpposite(direction);
+
+        if (
+          !maze.playerCell.walls[direction] &&
+          !nextCell.walls[nextCellWall]
+        ) {
+          maze.playerCell = nextCell;
+
+          if (maze.playerCell === end) {
+            console.log("You won!");
+          }
+        }
+      }
+    }
+
+    if (keyIsPressed) {
+      if (keyCode === LEFT_ARROW) {
+        move(this, -1, 0, "left");
+      } else if (keyCode === RIGHT_ARROW) {
+        move(this, 1, 0, "right");
+      } else if (keyCode === UP_ARROW) {
+        move(this, 0, -1, "up");
+      } else if (keyCode === DOWN_ARROW) {
+        move(this, 0, 1, "down");
+      }
+    }
+  }
+
+  drawPlayer() {
+    const [x, y] = this.playerCell.position;
+    const [w, h] = this.playerCell.dimension;
+
+    noStroke();
+    fill(0, 0, 255);
+    rect(x, y, w * 0.9, h * 0.9);
   }
 
   draw() {
