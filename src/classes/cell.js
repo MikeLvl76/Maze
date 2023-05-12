@@ -50,11 +50,11 @@ class Cell {
 
     if (this.value === 1) {
       noStroke();
-      fill(0, 255, 0);
+      fill(0, 127, 0);
       rect(x, y, w, h);
     } else if (this.value === 2) {
       noStroke();
-      fill(255, 0, 0);
+      fill(127, 0, 0);
       rect(x, y, w, h);
     }
   }

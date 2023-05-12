@@ -15,6 +15,7 @@ class Maze {
 
     this.stack = [];
     this.playerCell = null;
+    this.playerPath = [];
   }
 
   isEmpty() {
@@ -149,6 +150,7 @@ class Maze {
   initGame(start) {
     if (!start) return alert("No entry set!");
     this.playerCell = start;
+    this.playerPath.push(start);
   }
 
   moveInside(end) {
@@ -173,7 +175,13 @@ class Maze {
           !maze.playerCell.walls[direction] &&
           !nextCell.walls[nextCellWall]
         ) {
-          maze.playerCell = nextCell;
+          if (maze.playerPath.includes(nextCell)) {
+            maze.playerPath.pop();
+            maze.playerCell = nextCell;
+          } else {
+            maze.playerCell = nextCell;
+            maze.playerPath.push(nextCell);
+          }
 
           if (maze.playerCell === end) {
             console.log("You won!");
@@ -200,8 +208,20 @@ class Maze {
     const [w, h] = this.playerCell.dimension;
 
     noStroke();
-    fill(0, 0, 255);
-    rect(x, y, w * 0.9, h * 0.9);
+    fill(249, 194, 14);
+    ellipse(x + w / 2, y + h / 2, w * 0.8, h * 0.8);
+  }
+
+  drawPath() {
+    for (let i = 1; i < this.playerPath.length; i++) {
+      noFill();
+      stroke(255, 255, 0);
+      const [px, py] = this.playerPath[i - 1].position;
+      const [pw, ph] = this.playerPath[i - 1].dimension;
+      const [x, y] = this.playerPath[i].position;
+      const [w, h] = this.playerPath[i].dimension;
+      line(px + pw / 2, py + ph / 2, x + w / 2, y + h / 2);
+    }
   }
 
   draw() {
