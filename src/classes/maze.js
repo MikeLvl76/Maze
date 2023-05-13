@@ -203,6 +203,25 @@ class Maze {
     }
   }
 
+  resetPosition() {
+    this.playerCell = this.playerPath[0];
+    this.playerPath.splice(0, this.playerPath.length);
+    this.playerPath.push(this.playerCell);
+  }
+
+  highlightExit() {
+    const cell = this.getExit();
+    if (!cell) return;
+
+    const [x, y] = cell.position;
+    const [w, h] = cell.dimension
+
+    noFill();
+    stroke(255, 20, 0);
+    strokeWeight(3);
+    ellipse(x + w / 2, y + h / 2, w * 2, h * 2);
+  }
+
   drawPlayer() {
     const [x, y] = this.playerCell.position;
     const [w, h] = this.playerCell.dimension;

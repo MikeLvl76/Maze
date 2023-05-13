@@ -26,7 +26,7 @@ class Cell {
   }
 
   draw() {
-    stroke(255);
+    stroke(127);
     strokeWeight(2);
 
     const [x, y] = this.position;
