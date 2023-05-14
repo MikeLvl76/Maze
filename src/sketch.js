@@ -26,7 +26,7 @@ function userWon() {
   background(0);
   textSize(32);
   textAlign(CENTER);
-  fill(0, 255, 0);
+  fill("#32CD32");
   text("You have found the exit!", width / 2, height / 4);
   text("Click on 'Play again'", width / 2, height / 4 + 50);
 
@@ -135,9 +135,11 @@ function gameOver() {
 }
 
 function menu() {
-  textSize(32);
+  textSize(16);
   textAlign(CENTER);
   fill(255);
+  text("Press 'r' to reset your position", width / 2, height / 4);
+  text("Press 'space' to see your path and to highlight the exit", width / 2, height / 3);
   text("Click to play", width / 2, height / 2);
 
   if (mouseIsPressed) {
@@ -222,17 +224,22 @@ function setup() {
 
 function draw() {
   background(0);
-  maze.draw();
-  maze.drawPlayer();
-  if (enableHelp) {
-    maze.drawPath();
-    maze.highlightExit();
-  }
-  maze.moveInside(maze.getExit());
-  moveCountText.html(maze.moves.toString());
 
-  if (maze.isFound) {
-    userWon();
+  if (!startGame) {
+    menu();
+  } else {
+    maze.draw();
+    maze.drawPlayer();
+    if (enableHelp) {
+      maze.drawPath();
+      maze.highlightExit();
+    }
+    maze.moveInside(maze.getExit());
+    moveCountText.html(maze.moves.toString());
+
+    if (maze.isFound) {
+      userWon();
+    }
   }
 }
 
