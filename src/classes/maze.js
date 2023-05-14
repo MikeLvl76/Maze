@@ -16,6 +16,8 @@ class Maze {
     this.stack = [];
     this.playerCell = null;
     this.playerPath = [];
+    this.moves = 0;
+    this.isFound = false;
   }
 
   isEmpty() {
@@ -151,6 +153,7 @@ class Maze {
     if (!start) return alert("No entry set!");
     this.playerCell = start;
     this.playerPath.push(start);
+    this.isFound = false;
   }
 
   moveInside(end) {
@@ -184,7 +187,8 @@ class Maze {
           }
 
           if (maze.playerCell === end) {
-            console.log("You won!");
+            maze.isFound = true;
+            return;
           }
         }
       }
@@ -193,12 +197,16 @@ class Maze {
     if (keyIsPressed) {
       if (keyCode === LEFT_ARROW) {
         move(this, -1, 0, "left");
+        this.moves++;
       } else if (keyCode === RIGHT_ARROW) {
         move(this, 1, 0, "right");
+        this.moves++;
       } else if (keyCode === UP_ARROW) {
         move(this, 0, -1, "up");
+        this.moves++;
       } else if (keyCode === DOWN_ARROW) {
         move(this, 0, 1, "down");
+        this.moves++;
       }
     }
   }

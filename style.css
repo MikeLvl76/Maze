@@ -6,3 +6,29 @@ html {
 body {
     background-color: black;
 }
+
+#content {
+    width: 600px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    padding: auto;
+}
+
+#text_time, #text_count {
+    color: white;
+    width: fit-content;
+    height: fit-content;
+}
+
+#play_again {
+    border: none;
+    border-radius: 5%;
+    color: white;
+    background-color: black;
+}
+
+#play_again:hover {
+    background-color: gray;
+}
