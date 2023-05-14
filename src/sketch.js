@@ -8,28 +8,128 @@ let fieldset,
   textTime,
   moveCountText = null;
 
-function userWon() {
-  if (maze) {
-    if (maze.isFound) {
-      background(0);
-      textSize(32);
-      textAlign(CENTER);
-      fill(0, 255, 0);
-      text("You have found the exit!", width / 2, height / 4);
-      text("Click on 'Play again'", width / 2, height / 4 + 50);
+function saveResult() {
+  const data = localStorage.getItem("maze_game_saves");
+  const saves = data ? JSON.parse(data) : [];
+  saves.push({
+    moves: maze.moves,
+    time: textTime.html(),
+    exitFound: maze.isFound ? "Yes" : "No",
+  });
+  localStorage.setItem("maze_game_saves", JSON.stringify(saves));
+  return saves.sort((a, b) => a.moves - b.moves);
+}
 
-      noLoop();
-    }
+function userWon() {
+  clearInterval(interval);
+
+  background(0);
+  textSize(32);
+  textAlign(CENTER);
+  fill(0, 255, 0);
+  text("You have found the exit!", width / 2, height / 4);
+  text("Click on 'Play again'", width / 2, height / 4 + 50);
+
+  const saves = saveResult();
+
+  // Column positions and widths
+  const positionsX = width / 2 - 150;
+  const movesX = width / 2;
+  const exitX = width / 2 + 150;
+  const columnWidth = 150;
+
+  fill(255);
+  stroke(0, 255, 0);
+  strokeWeight(1);
+
+  // Table header
+  textSize(24);
+  text("Position", positionsX, height / 4 + 120);
+  text("Moves", movesX, height / 4 + 120);
+  text("Exit found?", exitX, height / 4 + 120);
+
+  // Table separator
+  const separatorY = height / 4 + 130;
+  const separatorLength = 3 * columnWidth;
+  for (let i = 0; i < separatorLength; i += 10) {
+    line(
+      width / 2 - separatorLength / 2 + i,
+      separatorY,
+      width / 2 - separatorLength / 2 + i + 5,
+      separatorY
+    );
   }
+
+  // Table body
+  textSize(20);
+  saves.slice(0, 5).forEach((save, i) => {
+    const positionText = `${i + 1}`;
+    const moveText = `${save.moves}`;
+    const exitText = `${save.exitFound}`;
+
+    // Table row
+    textAlign(CENTER);
+    text(positionText, positionsX, height / 4 + 155 + i * 30);
+    text(moveText, movesX, height / 4 + 155 + i * 30);
+    text(exitText, exitX, height / 4 + 155 + i * 30);
+  });
+
+  noLoop();
 }
 
 function gameOver() {
+  clearInterval(interval);
+
   background(0);
   textSize(32);
   textAlign(CENTER);
   fill(255, 0, 0);
   text("Game over!", width / 2, height / 4);
   text("Click on 'Play again'", width / 2, height / 4 + 50);
+
+  const saves = saveResult();
+
+  // Column positions and widths
+  const positionsX = width / 2 - 150;
+  const movesX = width / 2;
+  const exitX = width / 2 + 150;
+  const columnWidth = 150;
+
+  fill(255);
+  stroke(255, 0, 0);
+  strokeWeight(1);
+
+  // Table header
+  textSize(24);
+  text("Position", positionsX, height / 4 + 120);
+  text("Moves", movesX, height / 4 + 120);
+  text("Exit found?", exitX, height / 4 + 120);
+
+  // Table separator
+  const separatorY = height / 4 + 130;
+  const separatorLength = 3 * columnWidth;
+  for (let i = 0; i < separatorLength; i += 10) {
+    line(
+      width / 2 - separatorLength / 2 + i,
+      separatorY,
+      width / 2 - separatorLength / 2 + i + 5,
+      separatorY
+    );
+  }
+
+  // Table body
+  textSize(20);
+  saves.slice(0, 5).forEach((save, i) => {
+    const positionText = `${i + 1}`;
+    const moveText = `${save.moves}`;
+    const exitText = `${save.exitFound}`;
+
+    // Table row
+    textAlign(CENTER);
+    text(positionText, positionsX, height / 4 + 155 + i * 30);
+    text(moveText, movesX, height / 4 + 155 + i * 30);
+    text(exitText, exitX, height / 4 + 155 + i * 30);
+  });
 
   noLoop();
 }
@@ -56,7 +156,7 @@ function resetSketch() {
   maze.initGame(maze.getEntry());
 
   timer = 300;
-  textTime.html('05:00');
+  textTime.html("05:00");
 
   if (!isLooping()) {
     loop();
@@ -130,7 +230,10 @@ function draw() {
   }
   maze.moveInside(maze.getExit());
   moveCountText.html(maze.moves.toString());
-  userWon();
+
+  if (maze.isFound) {
+    userWon();
+  }
 }
 
 function keyPressed() {
