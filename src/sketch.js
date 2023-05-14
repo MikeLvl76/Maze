@@ -1,7 +1,7 @@
 let maze = null;
 let enableHelp = false;
 let startGame = false;
-let timer = 300;
+let timer = 0;
 let interval = null;
 
 let fieldset,
@@ -45,10 +45,8 @@ function menu() {
   }
 }
 
-function setup() {
-  createCanvas(600, 600);
-  frameRate(15);
-  enableHelp = false;
+function resetSketch() {
+  clearInterval(interval);
 
   maze = new Maze(10 + Math.floor(Math.random() * 50));
   maze.generate();
@@ -57,28 +55,12 @@ function setup() {
 
   maze.initGame(maze.getEntry());
 
-  fieldset = createElement("fieldset");
-  fieldset.id("content");
+  timer = 300;
+  textTime.html('05:00');
 
-  const legend = createElement("legend", "Stats");
-  legend.style("color", "#ffffff");
-
-  textTime = createElement("p", "05:00");
-  textTime.attribute("title", "Remaining time");
-  textTime.id("text_time");
-
-  moveCountText = createElement("p", "0");
-  moveCountText.attribute("title", "Number of moves");
-  moveCountText.id("text_count");
-
-  const playAgain = createElement("button", "Play again");
-  playAgain.attribute("title", "Restart game");
-  playAgain.id("play_again");
-
-  fieldset.child(legend);
-  fieldset.child(textTime);
-  fieldset.child(moveCountText);
-  fieldset.child(playAgain);
+  if (!isLooping()) {
+    loop();
+  }
 
   interval = setInterval(() => {
     /*if (!startGame) {
@@ -104,6 +86,38 @@ function setup() {
       clearInterval(interval);
     }
   }, 1000);
+}
+
+function setup() {
+  createCanvas(600, 600);
+  frameRate(15);
+
+  fieldset = createElement("fieldset");
+  fieldset.id("content");
+
+  const legend = createElement("legend", "Stats");
+  legend.style("color", "#ffffff");
+
+  textTime = createElement("p", "05:00");
+  textTime.attribute("title", "Remaining time");
+  textTime.id("text_time");
+
+  moveCountText = createElement("p", "0");
+  moveCountText.attribute("title", "Number of moves");
+  moveCountText.id("text_count");
+
+  const playAgain = createElement("button", "Play again");
+  playAgain.attribute("title", "Restart game");
+  playAgain.id("play_again");
+
+  fieldset.child(legend);
+  fieldset.child(textTime);
+  fieldset.child(moveCountText);
+  fieldset.child(playAgain);
+
+  playAgain.mousePressed(resetSketch);
+
+  resetSketch();
 }
 
 function draw() {
