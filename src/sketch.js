@@ -1,4 +1,5 @@
 let maze = null;
+let mazeSize = 10;
 let enableHelp = false;
 let startGame = false;
 let timer = 0;
@@ -140,9 +141,14 @@ function menu() {
   fill(255);
   text("Press 'r' to reset your position", width / 2, height / 4);
   text("Press 'space' to see your path and to highlight the exit", width / 2, height / 3);
-  text("Click to play", width / 2, height / 2);
+
+  text('Press UP or DOWN arrow to increase/decrease size (min. 10 and max. 60)', width / 2, height / 2);
+  text(`Current maze size : ${mazeSize}x${mazeSize}`, width / 2, height / 2 + 50);
+
+  text("Click to play", width / 2, height - 50);
 
   if (mouseIsPressed) {
+    resetSketch();
     startGame = true;
   }
 }
@@ -150,7 +156,7 @@ function menu() {
 function resetSketch() {
   clearInterval(interval);
 
-  maze = new Maze(10 + Math.floor(Math.random() * 50));
+  maze = new Maze(mazeSize);
   maze.generate();
   maze.createEntry();
   maze.createExit();
@@ -250,5 +256,15 @@ function keyPressed() {
 
   if (key === "r") {
     maze.resetPosition();
+  }
+
+  if (!startGame) {
+    if (keyCode === UP_ARROW) {
+      mazeSize = (mazeSize % 60) + 1;
+    }
+
+    if (keyCode === DOWN_ARROW) {
+      mazeSize = ((mazeSize - 2 + 60) % 60) + 1;
+    }
   }
 }
