@@ -21,15 +21,10 @@ function saveResult() {
   return saves.sort((a, b) => a.moves - b.moves);
 }
 
-function userWon() {
+function endGame(displayCallback, strokeColor) {
   clearInterval(interval);
 
-  background(0);
-  textSize(32);
-  textAlign(CENTER);
-  fill("#32CD32");
-  text("You have found the exit!", width / 2, height / 4);
-  text("Click on 'Play again'", width / 2, height / 4 + 50);
+  displayCallback();
 
   const saves = saveResult();
 
@@ -40,64 +35,7 @@ function userWon() {
   const columnWidth = 150;
 
   fill(255);
-  stroke(0, 255, 0);
-  strokeWeight(1);
-
-  // Table header
-  textSize(24);
-  text("Position", positionsX, height / 4 + 120);
-  text("Moves", movesX, height / 4 + 120);
-  text("Exit found?", exitX, height / 4 + 120);
-
-  // Table separator
-  const separatorY = height / 4 + 130;
-  const separatorLength = 3 * columnWidth;
-  for (let i = 0; i < separatorLength; i += 10) {
-    line(
-      width / 2 - separatorLength / 2 + i,
-      separatorY,
-      width / 2 - separatorLength / 2 + i + 5,
-      separatorY
-    );
-  }
-
-  // Table body
-  textSize(20);
-  saves.slice(0, 5).forEach((save, i) => {
-    const positionText = `${i + 1}`;
-    const moveText = `${save.moves}`;
-    const exitText = `${save.exitFound}`;
-
-    // Table row
-    textAlign(CENTER);
-    text(positionText, positionsX, height / 4 + 155 + i * 30);
-    text(moveText, movesX, height / 4 + 155 + i * 30);
-    text(exitText, exitX, height / 4 + 155 + i * 30);
-  });
-
-  noLoop();
-}
-
-function gameOver() {
-  clearInterval(interval);
-
-  background(0);
-  textSize(32);
-  textAlign(CENTER);
-  fill(255, 0, 0);
-  text("Game over!", width / 2, height / 4);
-  text("Click on 'Play again'", width / 2, height / 4 + 50);
-
-  const saves = saveResult();
-
-  // Column positions and widths
-  const positionsX = width / 2 - 150;
-  const movesX = width / 2;
-  const exitX = width / 2 + 150;
-  const columnWidth = 150;
-
-  fill(255);
-  stroke(255, 0, 0);
+  stroke(...strokeColor);
   strokeWeight(1);
 
   // Table header
@@ -140,10 +78,22 @@ function menu() {
   textAlign(CENTER);
   fill(255);
   text("Press 'r' to reset your position", width / 2, height / 4);
-  text("Press 'space' to see your path and to highlight the exit", width / 2, height / 3);
+  text(
+    "Press 'space' to see your path and to highlight the exit",
+    width / 2,
+    height / 3
+  );
 
-  text('Press UP or DOWN arrow to increase/decrease size (min. 10 and max. 60)', width / 2, height / 2);
-  text(`Current maze size : ${mazeSize}x${mazeSize}`, width / 2, height / 2 + 50);
+  text(
+    "Press UP or DOWN arrow to increase/decrease size (min. 10 and max. 60)",
+    width / 2,
+    height / 2
+  );
+  text(
+    `Current maze size : ${mazeSize}x${mazeSize}`,
+    width / 2,
+    height / 2 + 50
+  );
 
   text("Click to play", width / 2, height - 50);
 
@@ -190,7 +140,14 @@ function resetSketch() {
     textTime.html(timeString);
 
     if (timer === 0) {
-      gameOver();
+      endGame(() => {
+        background(0);
+        textSize(32);
+        textAlign(CENTER);
+        fill(255, 0, 0);
+        text("Game over!", width / 2, height / 4);
+        text("Click on 'Play again'", width / 2, height / 4 + 50);
+      }, [255, 0, 0]);
       clearInterval(interval);
     }
   }, 1000);
@@ -244,7 +201,14 @@ function draw() {
     moveCountText.html(maze.moves.toString());
 
     if (maze.isFound) {
-      userWon();
+      endGame(() => {
+        background(0);
+        textSize(32);
+        textAlign(CENTER);
+        fill("#32CD32");
+        text("You have found the exit!", width / 2, height / 4);
+        text("Click on 'Play again'", width / 2, height / 4 + 50);
+      }, [0, 255, 0]);
     }
   }
 }
@@ -260,11 +224,11 @@ function keyPressed() {
 
   if (!startGame) {
     if (keyCode === UP_ARROW) {
-      mazeSize = (mazeSize % 60) + 1;
+      mazeSize = 10 + ((mazeSize - 10) % 50) + 1;
     }
 
     if (keyCode === DOWN_ARROW) {
-      mazeSize = ((mazeSize - 2 + 60) % 60) + 1;
+      mazeSize = 10 + ((mazeSize + 39) % 50);
     }
   }
 }
