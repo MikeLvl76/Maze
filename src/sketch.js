@@ -113,17 +113,17 @@ function resetSketch() {
 
   maze.initGame(maze.getEntry());
 
-  timer = 300;
-  textTime.html("05:00");
+  timer = map(mazeSize, 10, 60, 60, 600);
+  textTime.html("GO!");
 
   if (!isLooping()) {
     loop();
   }
 
   interval = setInterval(() => {
-    /*if (!startGame) {
+    if (!startGame) {
       return;
-    }*/
+    }
     timer--;
 
     // calculate minutes and seconds elapsed
